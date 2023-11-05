@@ -1,5 +1,3 @@
-#[cfg(test)]
-mod tests;
-
+pub mod parser;
 pub mod tokenizer;
 pub mod types;

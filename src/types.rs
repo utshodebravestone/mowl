@@ -1,18 +1,18 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
-pub enum Atom {
+#[derive(Debug, PartialEq)]
+pub enum AtomicExpression {
     Symbol(String),
     Number(f64),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Expression {
-    Atom(Atom),
+    Atom(AtomicExpression),
     List(Vec<Expression>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Error {
     Reason(String),
 }
