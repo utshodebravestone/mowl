@@ -22,6 +22,14 @@ struct Environment {
     bindings: HashMap<String, Expression>,
 }
 
+fn tokenize(src: &str) -> Vec<String> {
+    src.replace("(", " ( ")
+        .replace(")", " ) ")
+        .split_whitespace()
+        .map(|it| it.to_string())
+        .collect()
+}
+
 fn main() {
     println!("Hello, My Own Lisp!");
 }
