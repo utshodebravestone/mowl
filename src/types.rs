@@ -1,16 +1,42 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum AtomicExpression {
     Symbol(String),
     Number(f64),
 }
 
-#[derive(Debug, PartialEq)]
+impl fmt::Display for AtomicExpression {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AtomicExpression::Symbol(s) => write!(f, "{s}"),
+            AtomicExpression::Number(n) => write!(f, "{n}"),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expression {
     Atom(AtomicExpression),
     List(Vec<Expression>),
     Function(fn(&[Expression]) -> Result<Expression, Error>),
+}
+
+impl fmt::Display for Expression {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Expression::Atom(a) => write!(f, "{a}"),
+            Expression::List(l) => write!(
+                f,
+                "({})",
+                l.iter()
+                    .map(|it| format!("{it}"))
+                    .collect::<Vec<String>>()
+                    .join(" ")
+            ),
+            Expression::Function(_) => write!(f, "<function>"),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -30,8 +56,8 @@ impl Default for Environment {
                 "+".to_string(),
                 Expression::Function(|args| {
                     if args.len() == 2 {
-                        if let Expression::Atom(AtomicExpression::Number(x)) = args[1] {
-                            if let Expression::Atom(AtomicExpression::Number(y)) = args[2] {
+                        if let Expression::Atom(AtomicExpression::Number(x)) = args[0] {
+                            if let Expression::Atom(AtomicExpression::Number(y)) = args[1] {
                                 return Ok(Expression::Atom(AtomicExpression::Number(x + y)));
                             }
                         }
@@ -45,8 +71,8 @@ impl Default for Environment {
                 "-".to_string(),
                 Expression::Function(|args| {
                     if args.len() == 2 {
-                        if let Expression::Atom(AtomicExpression::Number(x)) = args[1] {
-                            if let Expression::Atom(AtomicExpression::Number(y)) = args[2] {
+                        if let Expression::Atom(AtomicExpression::Number(x)) = args[0] {
+                            if let Expression::Atom(AtomicExpression::Number(y)) = args[1] {
                                 return Ok(Expression::Atom(AtomicExpression::Number(x - y)));
                             }
                         }
@@ -60,8 +86,8 @@ impl Default for Environment {
                 "*".to_string(),
                 Expression::Function(|args| {
                     if args.len() == 2 {
-                        if let Expression::Atom(AtomicExpression::Number(x)) = args[1] {
-                            if let Expression::Atom(AtomicExpression::Number(y)) = args[2] {
+                        if let Expression::Atom(AtomicExpression::Number(x)) = args[0] {
+                            if let Expression::Atom(AtomicExpression::Number(y)) = args[1] {
                                 return Ok(Expression::Atom(AtomicExpression::Number(x * y)));
                             }
                         }
@@ -75,8 +101,8 @@ impl Default for Environment {
                 "/".to_string(),
                 Expression::Function(|args| {
                     if args.len() == 2 {
-                        if let Expression::Atom(AtomicExpression::Number(x)) = args[1] {
-                            if let Expression::Atom(AtomicExpression::Number(y)) = args[2] {
+                        if let Expression::Atom(AtomicExpression::Number(x)) = args[0] {
+                            if let Expression::Atom(AtomicExpression::Number(y)) = args[1] {
                                 if y == 0. {
                                     return Err(Error::Reason("can't divide by 0".to_string()));
                                 } else {
